@@ -1,29 +1,26 @@
 package com.ilhamirfan.modulfirebase;
 
-import static android.content.ContentValues.TAG;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.concurrent.TimeUnit;
+
 public class MainActivity extends AppCompatActivity {
+
+    private EditText phoneNumberInput;
+    private Button phoneSubmitBtn;
+
     private FirebaseAuth mAuth;
 
-    private EditText emailInput, passwordInput;
-    private Button loginBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,41 +28,19 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        emailInput = findViewById(R.id.EmailInput);
-        passwordInput = findViewById(R.id.PasswordInput);
-        loginBtn = findViewById(R.id.LoginButton);
+        phoneNumberInput = findViewById(R.id.PhoneInput);
+        phoneSubmitBtn = findViewById(R.id.PhoneSubmitBtn);
 
-        loginBtn.setOnClickListener(new View.OnClickListener() {
+        phoneSubmitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = emailInput.getText().toString();
-                String password = passwordInput.getText().toString();
+                String phoneNumber = phoneNumberInput.getText().toString();
 
-                RequestSignIn(email, password);
+                Intent loginActivity = new Intent(MainActivity.this, LoginActivity.class);
+                loginActivity.putExtra("PhoneNumber", phoneNumber);
+                startActivity(loginActivity);
             }
         });
-    }
-
-    private void RequestSignIn(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            Intent homeActivity = new Intent(MainActivity.this, HomeActivity.class);
-                            startActivity(homeActivity);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
     }
 
     @Override
@@ -74,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             Intent homeActivity = new Intent(MainActivity.this, HomeActivity.class);
+            homeActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(homeActivity);
         }
     }
